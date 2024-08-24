@@ -9,15 +9,32 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/data-table";
 import { useNewAccount } from "@/features/accounts/hooks/use-new-accounts";
 import { useGetAccounts } from "@/features/accounts/api/use-get-accounts";
-// import { useBulkDeleteAccounts } from "@/features/accounts/api/use-bulk-delete-account";
+import { useBulkDeleteAccounts } from "@/features/accounts/api/use-bulk-delete-account";
 
 const AccountsPage = () => {
   const newAccount = useNewAccount();
-  // const deleteAccounts = useBulkDeleteAccounts()
+  const deleteAccounts = useBulkDeleteAccounts();
   const accountsQuery = useGetAccounts();
   const accounts = accountsQuery.data || [];
 
-  const isDisabled = accountsQuery.isLoading;
+  const isDisabled = accountsQuery.isLoading || deleteAccounts.isPending;
+
+  if (accountsQuery.isLoading) {
+    return (
+      <div className="max-x-screen-2xl mx-auto w-full pb-10 -mt-24">
+        <Card className="border-none drop-shadow-sm">
+          <CardHeader>
+            <Skeleton className="h-8 w-48" />
+          </CardHeader>
+          <CardContent>
+            <div className="h-[500px] w-full flex items-center justify-center">
+              <Loader2 className="size-6 text-slate-300 animate-sping" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="max-x-screen-2xl mx-auto w-full pb-10 -mt-24">
@@ -36,6 +53,7 @@ const AccountsPage = () => {
             filterKey="name"
             onDelete={(row) => {
               const ids = row.map((r) => r.original.id);
+              deleteAccounts.mutate({ ids });
             }}
             disabled={isDisabled}
           />
