@@ -26,7 +26,7 @@ const formSchema = insertTransactionSchema.omit({
 
 type FormValues = z.input<typeof formSchema>;
 
-export const NewTransactionSheet = () => {
+const NewTransactionSheet = () => {
   const { isOpen, onClose } = useNewTransaction();
 
   const createMutation = useCreateTransaction();
@@ -93,3 +93,5 @@ export const NewTransactionSheet = () => {
     </Sheet>
   );
 };
+
+export default NewTransactionSheet;

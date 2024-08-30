@@ -29,7 +29,7 @@ const formSchema = insertTransactionSchema.omit({
 
 type FormValues = z.input<typeof formSchema>;
 
-export const EditTransactionSheet = () => {
+const EditTransactionSheet = () => {
   const { isOpen, onClose, id } = useOpenTransaction();
 
   const [ConfirmDialog, confirm] = useConfirm(
@@ -146,3 +146,5 @@ export const EditTransactionSheet = () => {
     </>
   );
 };
+
+export default EditTransactionSheet;
