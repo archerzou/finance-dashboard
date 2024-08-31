@@ -13,7 +13,7 @@ import { useCreateCategory } from "@/features/categories/api/use-create-category
 import { useGetAccounts } from "@/features/accounts/api/use-get-accounts";
 import { useCreateAccount } from "@/features/accounts/api/use-create-account";
 
-import { useConfirm } from "@/hooks/use-confirm";
+import useConfirm from "@/hooks/use-confirm";
 import { insertTransactionSchema } from "@/db/schema";
 import {
   Sheet,
