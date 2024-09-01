@@ -1,12 +1,12 @@
-import { Hono } from "hono";
-import { db } from "@/db/drizzle";
-import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
-import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
-import { zValidator } from "@hono/zod-validator";
-import { createId } from "@paralleldrive/cuid2";
 import { z } from "zod";
-import { subDays, parse } from "date-fns";
+import { Hono } from "hono";
+import { parse, subDays } from "date-fns";
+import { createId } from "@paralleldrive/cuid2";
+import { zValidator } from "@hono/zod-validator";
+import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
+import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 
+import { db } from "@/db/drizzle";
 import {
   transactions,
   insertTransactionSchema,
@@ -59,25 +59,26 @@ const app = new Hono()
         .leftJoin(categories, eq(transactions.categoryId, categories.id))
         .where(
           and(
-            accountId ? eq(transactions.accountId, accounts) : undefined,
+            accountId ? eq(transactions.accountId, accountId) : undefined,
             eq(accounts.userId, auth.userId),
             gte(transactions.date, startDate),
             lte(transactions.date, endDate)
           )
         )
         .orderBy(desc(transactions.date));
+
       return c.json({ data });
     }
   )
   .get(
     "/:id",
-    clerkMiddleware(),
     zValidator(
       "param",
       z.object({
         id: z.string().optional(),
       })
     ),
+    clerkMiddleware(),
     async (c) => {
       const auth = getAuth(c);
       const { id } = c.req.valid("param");
@@ -87,10 +88,8 @@ const app = new Hono()
       }
 
       if (!auth?.userId) {
-        c.json({ error: "Unauthorized" }, 401);
+        return c.json({ error: "Unauthorized" }, 401);
       }
-
-      const userId = auth?.userId as string;
 
       const [data] = await db
         .select({
@@ -104,7 +103,7 @@ const app = new Hono()
         })
         .from(transactions)
         .innerJoin(accounts, eq(transactions.accountId, accounts.id))
-        .where(and(eq(transactions.id, id), eq(accounts.userId, userId)));
+        .where(and(eq(transactions.id, id), eq(accounts.userId, auth.userId)));
 
       if (!data) {
         return c.json({ error: "Not found" }, 404);
@@ -146,9 +145,11 @@ const app = new Hono()
     clerkMiddleware(),
     zValidator(
       "json",
-      z.object({
-        transactions: z.array(insertTransactionSchema.omit({ id: true })),
-      })
+      z.array(
+        insertTransactionSchema.omit({
+          id: true,
+        })
+      )
     ),
     async (c) => {
       const auth = getAuth(c);
@@ -161,7 +162,7 @@ const app = new Hono()
       const data = await db
         .insert(transactions)
         .values(
-          values.transactions.map((value) => ({
+          values.map((value) => ({
             id: createId(),
             ...value,
           }))
@@ -188,11 +189,9 @@ const app = new Hono()
         return c.json({ error: "Unauthorized" }, 401);
       }
 
-      const transactionsToDelete = db.$with("tranasactions_to_delete").as(
+      const transactionsToDelete = db.$with("transactions_to_delete").as(
         db
-          .select({
-            id: transactions.id,
-          })
+          .select({ id: transactions.id })
           .from(transactions)
           .innerJoin(accounts, eq(transactions.accountId, accounts.id))
           .where(
@@ -247,11 +246,9 @@ const app = new Hono()
         return c.json({ error: "Unauthorized" }, 401);
       }
 
-      const transactionsToUpdate = db.$with("tranasactions_to_update").as(
+      const transactionsToUpdate = db.$with("transactions_to_update").as(
         db
-          .select({
-            id: transactions.id,
-          })
+          .select({ id: transactions.id })
           .from(transactions)
           .innerJoin(accounts, eq(transactions.accountId, accounts.id))
           .where(and(eq(transactions.id, id), eq(accounts.userId, auth.userId)))
@@ -297,11 +294,9 @@ const app = new Hono()
         return c.json({ error: "Unauthorized" }, 401);
       }
 
-      const transactionsToDelete = db.$with("tranasactions_to_delete").as(
+      const transactionsToDelete = db.$with("transactions_to_delete").as(
         db
-          .select({
-            id: transactions.id,
-          })
+          .select({ id: transactions.id })
           .from(transactions)
           .innerJoin(accounts, eq(transactions.accountId, accounts.id))
           .where(and(eq(transactions.id, id), eq(accounts.userId, auth.userId)))

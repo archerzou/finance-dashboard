@@ -7,7 +7,7 @@ import { useOpenTransaction } from "@/features/transactions/hooks/use-open-trans
 import { cn } from "@/lib/utils";
 
 type Props = {
-  id: string;
+  id: string | null;
   category: string | null;
   categoryId: string | null;
 };
