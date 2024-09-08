@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1724000130853,
-      "tag": "0000_zippy_skullbuster",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1724559406315,
-      "tag": "0001_new_ultragirl",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1724777730639,
-      "tag": "0002_big_shiva",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1725297962939,
-      "tag": "0003_careless_songbird",
+      "when": 1725767414753,
+      "tag": "0000_naive_randall",
       "breakpoints": true
     }
   ]
