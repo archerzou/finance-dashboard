@@ -12,7 +12,7 @@ export const useDeleteAccount = (id?: string) => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation<ResponseType, Error>({
-    mutationFn: async (json) => {
+    mutationFn: async () => {
       const response = await client.api.accounts[":id"]["$delete"]({
         param: { id },
       });
@@ -20,10 +20,10 @@ export const useDeleteAccount = (id?: string) => {
     },
     onSuccess: () => {
       toast.success("Account deleted");
-      queryClient.invalidateQueries({ queryKey: ["accounts", { id }] });
+      queryClient.invalidateQueries({ queryKey: ["account", { id }] });
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      //TODO: Invalidate sumary and transactions
+      queryClient.invalidateQueries({ queryKey: ["summary"] });
     },
     onError: () => {
       toast.error("Failed to delete account");
